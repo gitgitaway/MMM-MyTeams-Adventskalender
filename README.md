@@ -1,7 +1,7 @@
 # MMM-MyTeams-Adventskalender
 Version 1.1.0
-Author: gitgitaway with AI asistance
-Repository: https://github.com/gitgitaway/MMM-MyTeams-Adventskalender
+- Author: gitgitaway with AI asistance
+- Repository: https://github.com/gitgitaway/MMM-MyTeams-Adventskalender
 
 ## Overview
 A Glasgow Celtic FC themed advent calendar for the MagicMirror² which commemorates some influential figures and key moments in the club's rich 138 year history as you countdown to Christmas. Although this module has been specifically tailored towards Glasgow Celtic FC and its fans, the module is highly customizable and it can easily be modified to suit other teams or non football related events ( e.g. favorate family Christmas memories down the years ) by simply replacing the image/audio/video media files.  Inspired by and adapted from the wonderfully original MMM-Adventskalender module written by @ChrisF1976.
