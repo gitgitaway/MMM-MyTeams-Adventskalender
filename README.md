@@ -62,13 +62,18 @@ Prerequisites
 
 Clone
 - Linux/macOS
+  ```
   - cd ~/MagicMirror/modules && git clone https://github.com/gitgitaway/MMM-MyTeams-Adventskalender.git
+  ```
 - Windows PowerShell
+```
+ 
   - cd "$HOME/MagicMirror/modules"; git clone https://github.com/gitgitaway/MMM-MyTeams-Adventskalender.git
-
+```
 Update
-- cd ~/MagicMirror/modules/MMM-MyTeams-Adventskalender && git pull
-
+```
+ cd ~/MagicMirror/modules/MMM-MyTeams-Adventskalender && git pull
+```
 Manual install
 - Copy the MMM-MyTeams-Adventskalender folder to MagicMirror/modules
 
@@ -89,7 +94,7 @@ Full configuration
 ```
 {
   module: "MMM-MyTeams-Adventskalender",
-  position: "top_center",
+  position: "fulscren_above",
   config: {
     // ⚠️ IMPORTANT: Language must be set in module config, not global config!
     language: "en",  // en, de, en, es, fr, ga, gd, it, nl, pt, no, sv, fi, da, eu, ar, jp, uk
@@ -97,12 +102,12 @@ Full configuration
     backgroundImage: "background.jpg" , // place your own background image in the images/ folder
     postDoor24Image: "background24.png",  // Optional: background for 23:59:59 on Dec 24
     doorMargin: 30,
-    moduleWidth: 900,
-    moduleHeight: 700,
+    moduleWidth: "100%",
+    moduleHeight: "100%",
     autopen: true,
-    autoopenat: "00:00",
+    autoopenat: "07:30",
     openAnimationTime: "5s",
-    onboardingToolTips: false,
+    onboardingToolTips: false, // If set to true wil give you a brief overview of the module on the first start up
 
     audioEnabled: true,
     audioVolume: 0.5,
@@ -112,7 +117,7 @@ Full configuration
     doorScaleBackgroundMinOpacity: 0.4,
 
     allowVideoPlay: true,
-    videoSource: "folder",  // "hardcoded",
+    videoSource: "folder",  // "hardcoded", // hardcoded links to al videos on youtube / tictoc are in ther modules .js
 
     footerImageEnabled: true,
     footerImageDirection: "left-to-right",
@@ -131,11 +136,11 @@ Full configuration
     maxGiftsToDrop: 3,
     giftDropDelay: 5,
 
-    closeAllDoors: false,
-    testSequentially: false,
+    closeAllDoors: false, // closes each dor on completion of media or pre test
+    testSequentially: false, // wIf set to "true" wil test is al media is available
     randomizeDoorsOnStart: true,
-    testDoorDuration: 20,
-    dateOverride: null,  // Format: "YYYY-MM-DD hh:mm:ss", e.g. "2024-12-24 23:59:59" for Christmas Eve
+    testDoorDuration: 20, // media duration during test
+    dateOverride: null,  // Format: nul, or "YYYY-MM-DD hh:mm:ss", e.g. "2024-12-24 23:59:59" for Christmas Eve test
 
     snowflakesEnabled: true,
     snowflakeColors: ["#FFFFFF", "#CCFFFF", "#99CCFF", "#6699FF", "#3366FF", "#0033FF", "#0000FF", "#0000AA", "#000055"],
@@ -204,20 +209,23 @@ Place media inside the module folder:
     - Supports formats: `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`
     - Recommended size: 80×80 pixels (transparent background recommended)
 - **audio/**: 01.mp3 … 24.mp3
-- **video/**: 01.mp4 … 24.mp4 (only if using videoSource: "folder")
+- **video/**: 01.mp4 … 24.mp4 (only if using videoSource: "folder") nb videos in the video/ folder wil auto play after audio is completed, Hardcoded videos ned user intervention to start
 
 ## Usage
 - **Normal mode**: Click an unlocked door to open/close it. Audio plays when opened if enabled. After audio ends, an optional video popup opens depending on videoSource and allowVideoPlay.
 - **Auto-open**: If autopen is enabled, today's door opens at the time specified in autoopenat.
 - **Test Sequential Mode**: Enable testSequentially in config to automatically test all 24 doors in order. The sequence will:
   1. Close all doors
-  2. Open door 1, play audio (full duration), then play video (if enabled)
+  2. Open door 1, play audio ( play duration set by "testDoorDuration:"), then play video (if enabled)
   3. Continue to door 2 when video ends, is manually closed, or after 2-second timeout if video fails
   4. Repeat steps 2-3 for all 24 doors
   5. Detailed logging is output to the browser console for debugging
 
 ## Maintenance
-- Update: cd ~/MagicMirror/modules/MMM-MyTeams-Adventskalender && git pull
+- Update:
+  ```
+  cd ~/MagicMirror/modules/MMM-MyTeams-Adventskalender && git pull
+
 - Reset state: stop MagicMirror and delete state.json in the module folder; it will be recreated on next start.
 
 ## Troubleshooting
@@ -225,7 +233,7 @@ Place media inside the module folder:
 - No images/audio/video: verify files exist and are correctly named in images/, audio/, video/.
 - Audio blocked: browsers may block autoplay; ensure interaction or allow sound in the browser.
 - Popup blocked: allow popups for MagicMirror Electron or your browser for YouTube/local videos.
-- Performance issues on Raspberry Pi: reduce snowflakeCount (try 100-150), lower snowflakeSpeed, or disable doorScaleOnAudio.
+- Performance issues on Raspberry Pi: reduce snowCondition ( try Medium or Light or set to nul ) , reduce snowflakeCount (try 100-150), lower snowflakeSpeed, or disable doorScaleOnAudio.
 - Debug errors: enable `debug: true` in config to see detailed error context in browser console (F12).
 - Module not responsive: verify MagicMirror is fully loaded; check browser console for any error messages.
 
