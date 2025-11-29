@@ -1,0 +1,931 @@
+/**
+ * MMM-MyTeams-Adventskalender CSS
+ * Celtic FC Themed Advent Calendar Styling
+ * 
+ * Color scheme:
+ * - Celtic Green: #00aa00, #007700
+ * - Celtic White: #ffffff
+ * - Accent: Gold #ffd700
+ * 
+ * Animations:
+ * - Door rotation (3D effect)
+ * - Footer image scrolling procession
+ * - Footer image bounce effect
+ */
+
+/* Main advent calendar container */
+.advent-calendar-celtic {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Door styling - Celtic themed */
+.door-celtic {
+    /* Fully transparent background - shows underlying image */
+    background: transparent;
+    border: 1px solid #ffffff; /* Thin white border */
+    border-radius: 6px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: none;
+    position: absolute;
+    overflow: hidden;
+    
+    /* Transformation origin for 3D door rotation effect */
+    transform-origin: right center;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    
+    /* Perspective for 3D effects */
+    perspective: 1000px;
+}
+
+/* Locked (future) door state - grayed out */
+.door-celtic.locked {
+    background: rgba(100, 100, 100, 0.3);
+    border: 1px solid #999999;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.door-celtic.locked::after {
+    content: "🔒";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    opacity: 0.8;
+    z-index: 2;
+}
+
+.door-celtic.locked::before {
+    content: "Opens Dec " attr(data-day);
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: #ffd700;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.door-celtic.locked:hover::before {
+    opacity: 1;
+}
+
+.door-celtic.locked:focus::before {
+    opacity: 1;
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .door-celtic.locked::before {
+        opacity: 1;
+        bottom: -30px;
+        font-size: 0.75rem;
+        z-index: 5;
+    }
+}
+
+.door-celtic:focus {
+    outline: 3px solid #ffd700;
+    outline-offset: 2px;
+}
+
+.door-celtic:focus-visible {
+    outline: 3px solid #ffd700;
+    outline-offset: 2px;
+}
+
+/* Door image container */
+.door-celtic img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    border-radius: 3px;
+}
+
+/* Door number styling */
+.door-celtic span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7), 0 0 8px rgba(255, 215, 0, 0.3);
+    z-index: 1;
+    visibility: visible;
+    letter-spacing: 2px;
+}
+
+/* Door hover effect */
+.door-celtic:hover:not(.locked):not(.opened) {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3), inset 0 0 8px rgba(255, 255, 255, 0.1);
+    transform: scale(1.02);
+}
+
+/* Door active/touch state - feedback when door is pressed */
+.door-celtic:active:not(.locked):not(.opened) {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid #00aa00;
+    box-shadow: 0 0 20px rgba(0, 170, 0, 0.6), inset 0 0 12px rgba(0, 170, 0, 0.2);
+    transform: scale(0.98);
+    transition: all 0.1s ease-out;
+}
+
+/* Touch device media query - provides affordance for mobile/tablet users */
+@media (hover: none) and (pointer: coarse) {
+    .door-celtic:not(.locked):not(.opened) {
+        border: 2px solid rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .door-celtic:not(.locked):not(.opened):focus {
+        border: 2px solid #00aa00;
+        background: rgba(0, 170, 0, 0.1);
+        box-shadow: 0 0 12px rgba(0, 170, 0, 0.4);
+    }
+}
+
+/* Opened door - shows image, hides number */
+.door-celtic.opened {
+    background-color: transparent;
+    border: 1px solid #ffffff;
+    box-shadow: none;
+}
+
+.door-celtic.opened span {
+    visibility: hidden;
+}
+
+.door-celtic.opened img {
+    display: block;
+}
+
+/* Currently playing door - gold border during audio */
+.door-celtic.playing-audio {
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+}
+
+/* Video indicator badge - hidden by default, only shown on opened doors */
+.video-indicator {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #00aa00;
+    border-radius: 3px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    z-index: 10;
+    transition: opacity 0.3s;
+}
+
+.door-celtic.opened .video-indicator {
+    display: flex;
+    cursor: pointer;
+}
+
+.video-indicator.unplayed {
+    opacity: 0.5;
+}
+
+.video-indicator.played {
+    opacity: 1;
+}
+
+.video-indicator::after {
+    content: "Click to Play";
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: #00aa00;
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    border: 1px solid #00aa00;
+}
+
+.video-indicator:hover::after {
+    opacity: 1;
+}
+
+.video-indicator:focus {
+    outline: 2px solid #ffd700;
+    outline-offset: 2px;
+}
+
+.video-indicator:focus-visible {
+    outline: 2px solid #ffd700;
+    outline-offset: 2px;
+}
+
+.video-indicator.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.video-indicator.disabled::after {
+    content: "Video Play not enabled";
+}
+
+/* Video modal overlay for hardcoded videos */
+.video-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.video-modal-container {
+    position: relative;
+    width: 90%;
+    height: 90%;
+    max-width: 1000px;
+    max-height: 700px;
+    background: #000;
+    border: 2px solid #00aa00;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0, 170, 0, 0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.video-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.7);
+    border-bottom: 1px solid #00aa00;
+}
+
+.video-modal-title {
+    color: #00aa00;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.video-modal-close {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: 1px solid #00aa00;
+    color: #00aa00;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.video-modal-close:hover {
+    background: #00aa00;
+    color: #000;
+}
+
+.video-modal-content {
+    flex: 1;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    min-height: 300px;
+}
+
+.video-modal-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: #000;
+}
+
+.video-modal-video {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: block;
+}
+
+.video-modal-countdown {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #00aa00;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid #00aa00;
+    font-weight: bold;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+.door-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(0, 170, 0, 0.3);
+    border-top: 3px solid #00aa00;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 5;
+}
+
+/* Door opening animation state */
+.door-celtic.opening {
+    animation: rotate-door-celtic 5s forwards;
+}
+
+.door-celtic.opening span {
+    visibility: hidden;
+}
+
+/* Door closing animation state */
+.door-celtic.closing {
+    animation: rotate-door-celtic 5s reverse;
+}
+
+.door-celtic.closing img {
+    display: none;
+}
+
+/* Test mode - elapsed time display below door */
+.door-test-time {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+}
+
+/* Main 3D door rotation animation */
+@keyframes rotate-door-celtic {
+    0% {
+        transform: rotateY(0deg) scale(1);
+        opacity: 1;
+    }
+    50% {
+        /* Half-way through opening, door is perpendicular */
+        transform: rotateY(47.5deg) scale(1);
+    }
+    100% {
+        /* Fully opened - door rotated 95 degrees */
+        transform: rotateY(95deg) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Footer image procession container at bottom */
+.footer-image-procession {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    z-index: 2;
+    overflow: hidden;
+    background: transparent;
+    border-top: none;
+}
+
+/* Footer image line container - centered layout */
+.footer-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 15px;
+    animation: scroll-elves 20s linear infinite;
+    white-space: nowrap;
+}
+
+/* Footer image element styling */
+.footer-image {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    animation: bounce 1s ease-in-out infinite;
+}
+
+/* footerImage procession container at bottom */
+.footerImage-procession {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    z-index: 2;
+    overflow: hidden;
+    
+    /* Celtic green themed background */
+    background: linear-gradient(to bottom, 
+        rgba(0, 170, 0, 0.2) 0%, 
+        rgba(0, 100, 0, 0.4) 100%);
+    
+    border-top: 3px solid #00aa00; /* Celtic green border */
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* footerImage line container - scrolling animation */
+.footerImage-line {
+    display: flex;
+    align-items: flex-end;
+    animation: scroll-footer 20s linear infinite;
+    white-space: nowrap;
+    padding: 10px 20px;
+}
+
+/* footerImage scrolling animation - moves from right to left continuously */
+@keyframes scroll-footer {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-200%);
+    }
+}
+
+/* footerImage scrolling animation - moves from left to right continuously */
+@keyframes scroll-footer-rtl {
+    0% {
+        transform: translateX(-200%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+
+
+/* Responsive scaling for different screen sizes */
+@media (max-width: 1024px) {
+    .door-celtic {
+        border-width: 2px;
+    }
+    
+    .door-celtic span {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .door-celtic span {
+        font-size: 1rem;
+    }
+}
+
+/* Accessibility - reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .door-celtic.opening,
+    .door-celtic.closing {
+        animation: none;
+        opacity: 1;
+    }
+}
+
+
+
+/* Print styles - optimize for printing */
+@media print {
+    .advent-calendar-celtic {
+        box-shadow: none;
+    }
+    
+    .door-celtic {
+        border: 1px solid #000;
+        background: #fff;
+        color: #000;
+    }
+}
+
+/* Santa sleigh animation */
+.santa-sleigh-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1.5;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.sleigh-group {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sleigh-group.sleigh-dropping {
+    animation-play-state: paused;
+    filter: brightness(1.3);
+    transition: filter 0.3s ease;
+}
+
+@keyframes sleigh-arc {
+    0% {
+        left: -300px;
+        top: 20%;
+    }
+    25% {
+        left: 10%;
+        top: 15%;
+    }
+    50% {
+        left: 50%;
+        top: 10%;
+        transform: translateX(-50%);
+    }
+    75% {
+        left: 90%;
+        top: 15%;
+    }
+    100% {
+        left: 110%;
+        top: 20%;
+    }
+}
+
+@keyframes sleigh-arc-rtl {
+    0% {
+        right: -300px;
+        top: 20%;
+    }
+    25% {
+        right: 10%;
+        top: 15%;
+    }
+    50% {
+        right: 50%;
+        top: 10%;
+        transform: translateX(50%);
+    }
+    75% {
+        right: 90%;
+        top: 15%;
+    }
+    100% {
+        right: 110%;
+        top: 20%;
+    }
+}
+
+@keyframes bounce-reindeer {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.sleigh-image {
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.trophy-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+}
+
+.falling-trophy {
+    filter: drop-shadow(2px 2px 6px rgba(0, 0, 0, 0.4));
+}
+
+/* Snowflake container */
+.snowflakes-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Individual snowflake */
+.snowflake {
+    position: fixed;
+    top: -10px;
+    color: #FFFFFF;
+    font-size: 1em;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+    user-select: none;
+    cursor: default;
+}
+
+/* Snowflake type 1 - Simple star */
+.snowflake-type-1::before {
+    content: "❄";
+}
+
+/* Snowflake type 2 - Rotated star */
+.snowflake-type-2::before {
+    content: "✳";
+}
+
+/* Snowflake type 3 - Heavy star */
+.snowflake-type-3::before {
+    content: "❅";
+}
+
+/* Snowflake type 4 - Dense star */
+.snowflake-type-4::before {
+    content: "❆";
+}
+
+/* Snowflake type 5 - Alternate star */
+.snowflake-type-5::before {
+    content: "❄";
+    opacity: 0.9;
+}
+
+/* Snowflake type 6 - Rotated heavy star */
+.snowflake-type-6::before {
+    content: "✳";
+    opacity: 0.9;
+}
+
+/* Snowflake type 7 - Dense variation 1 */
+.snowflake-type-7::before {
+    content: "❅";
+    opacity: 0.85;
+}
+
+/* Snowflake type 8 - Dense variation 2 */
+.snowflake-type-8::before {
+    content: "❆";
+    opacity: 0.85;
+}
+
+/* Snowflake type 9 - Simple star variation */
+.snowflake-type-9::before {
+    content: "❄";
+    opacity: 0.8;
+}
+
+/* Snowflake type 10 - Rotated star variation */
+.snowflake-type-10::before {
+    content: "✳";
+    opacity: 0.8;
+}
+
+/* Snowflake type 11 - Simple star variant */
+.snowflake-type-11::before {
+    content: "❄";
+    opacity: 0.75;
+}
+
+/* Snowflake type 12 - Rotated heavy star variant */
+.snowflake-type-12::before {
+    content: "✳";
+    opacity: 0.75;
+}
+
+/* Snowflake type 13 - Heavy star variant */
+.snowflake-type-13::before {
+    content: "❅";
+    opacity: 0.7;
+}
+
+/* Snowflake type 14 - Dense star variant */
+.snowflake-type-14::before {
+    content: "❆";
+    opacity: 0.7;
+}
+
+/* Snowflake type 15 - Simple star variant 2 */
+.snowflake-type-15::before {
+    content: "❄";
+    opacity: 0.65;
+}
+
+/* Snowflake type 16 - Rotated star variant 2 */
+.snowflake-type-16::before {
+    content: "✳";
+    opacity: 0.65;
+}
+
+/* Snowflake type 17 - Heavy star variant 2 */
+.snowflake-type-17::before {
+    content: "❅";
+    opacity: 0.6;
+}
+
+/* Snowflake type 18 - Dense star variant 2 */
+.snowflake-type-18::before {
+    content: "❆";
+    opacity: 0.6;
+}
+
+/* Snowflake type 19 - Simple star variant 3 */
+.snowflake-type-19::before {
+    content: "❄";
+    opacity: 0.55;
+}
+
+/* Snowflake type 20 - Rotated star variant 3 */
+.snowflake-type-20::before {
+    content: "✳";
+    opacity: 0.55;
+}
+
+/* Snowflake falling animations with wind effect */
+/* NOTE: Snowfall keyframes 1-20 are dynamically generated in JavaScript to reduce CSS bloat */
+/* The generateSnowfallStyles() method in MMM-MyTeams-Adventskalender.js (line 1984) creates */
+/* all necessary @keyframes at runtime with varied wind effects for each snowflake animation */
+
+.countdown-text {
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 
+        0 0 4px rgba(0, 0, 0, 0.8),
+        0 0 8px rgba(0, 0, 0, 0.6),
+        2px 2px 4px rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.6);
+    padding: 4px 8px;
+    border-radius: 4px;
+    backdrop-filter: blur(2px);
+}
+
+/* Door number display styling */
+.door-number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Door image styling */
+.door-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    border-radius: 3px;
+}
+
+/* Door image visible state */
+.door-image-visible {
+    display: block !important;
+}
+
+/* Video indicator positioning */
+.video-indicator-positioned {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    z-index: 10;
+}
+
+/* Door state styling - past day with reduced opacity */
+.door-past-day {
+    opacity: 0.4;
+}
+
+/* Door state styling - today with highlighted border */
+.door-today {
+    border-color: #ffd700;
+    border-width: 3px;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+/* Pointer events disabled for locked doors */
+.door-locked-no-interact {
+    pointer-events: none;
+}
+
+/* Footer procession container styling */
+.footer-procession-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    z-index: 2;
+    overflow: hidden;
+    background-color: transparent;
+    border-top: none;
+}
+
+/* Footer line animation container */
+.footer-animation-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 15px;
+}
+
+/* Door overlay background - full screen dark background */
+.door-overlay-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9998;
+    pointer-events: none;
+}
+
+/* Door overlay - scaled door image container */
+.door-overlay {
+    position: fixed;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+/* Scaled door image styling */
+.scaled-door-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+}
+
+
+
+@media (prefers-reduced-motion: reduce) {
+    .door-celtic,
+    .sleigh-group,
+    .snowflake,
+    .footer-procession-image,
+    .bounce-reindeer {
+        animation: none !important;
+        transition: none !important;
+    }
+}
