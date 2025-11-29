@@ -173,7 +173,7 @@ Configuration options
 | doorScaleOverlayOpacity | number | 0.5 | Overlay background darkness (0.0–1.0); lower values allow background visibility. |
 | doorScaleBackgroundMinOpacity | number | 0.4 | Minimum background image visibility during overlay (0.0–1.0). |
 | allowVideoPlay | boolean | true | Enable video popups after audio ends. |
-| videoSource | string | "hardcoded" | "hardcoded" for YouTube links in code, or "folder" to play local video files from video/. |
+| videoSource | string | "hardcoded" | "hardcoded" for YouTube links in code, or "folder" to play your own video files from video/. |
 | footerImageEnabled | boolean | true | Show animated footer images and countdown banner. |
 | footerImageDirection | string | "left-to-right" | Direction of footer animation ("left-to-right" or "right-to-left"). |
 | footerImageAnimationDuration | number | 120 | Duration in seconds for one full footer scroll. |
