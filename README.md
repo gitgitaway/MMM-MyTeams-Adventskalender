@@ -63,12 +63,12 @@ Prerequisites
 Clone
 - Linux/macOS
   ```
-  - cd ~/MagicMirror/modules && git clone https://github.com/gitgitaway/MMM-MyTeams-Adventskalender.git
+  cd ~/MagicMirror/modules && git clone https://github.com/gitgitaway/MMM-MyTeams-Adventskalender.git
   ```
 - Windows PowerShell
 ```
  
-  - cd "$HOME/MagicMirror/modules"; git clone https://github.com/gitgitaway/MMM-MyTeams-Adventskalender.git
+  cd "$HOME/MagicMirror/modules"; git clone https://github.com/gitgitaway/MMM-MyTeams-Adventskalender.git
 ```
 Update
 ```
