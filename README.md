@@ -1,13 +1,13 @@
 # MMM-MyTeams-Adventskalender
 Version 1.1.0
 Author: gitgitaway with AI asistance
-Repository: 
+Repository: https://github.com/gitgitaway/MMM-MyTeams-Adventskalender
 
 ## Overview
 A Glasgow Celtic FC themed advent calendar for the MagicMirror² which commemorates some influential figures and key moments in the club's rich 138 year history as you countdown to Christmas. Although this module has been specifically tailored towards Glasgow Celtic FC and its fans, the module is highly customizable and it can easily be modified to suit other teams or non football related events ( e.g. favorate family Christmas memories down the years ) by simply replacing the image/audio/video media files.  Inspired by and adapted from the wonderfully original MMM-Adventskalender module written by @ChrisF1976.
 
 ## Features
-- Originl Adventskalender 24-door interactive calendar with open/close animations
+- Original Adventskalender 24-door interactive calendar with open/close animations
 - Per-door image with optional audio playback with configurable overlay opacity
 - Optional per-door video via hardcoded YouTube link or localy saved files in the /video folder
 - Background image support with visibility controls (dimming/opacity) during audio overlay
@@ -46,13 +46,11 @@ For comprehensive accessibility documentation, **see [ACCESSIBILITY.md](./docume
 
 ## Screenshots
 
-| # | Description |
-|-------|-------------|
-| ![1](./screenshots/screenshot1.png) |  |
-| ![2](./screenshots/screenshot2.png) |  |
-| ![3](./screenshots/screenshot3.png) |  |
-| ![4](./screenshots/screenshot4.png) |  |
-| ![5](./screenshots/screenshot5.png) |  |
+| ![1](./screenshots/screenshot1.png) | 
+| ![2](./screenshots/screenshot2.png) | 
+| ![3](./screenshots/screenshot3.png) | 
+| ![4](./screenshots/screenshot4.png) | 
+
 
 
 
