@@ -94,13 +94,13 @@ Full configuration
 ```
 {
   module: "MMM-MyTeams-Adventskalender",
-  position: "fulscren_above",
+  position: "fulscreen_above",
   config: {
     // ⚠️ IMPORTANT: Language must be set in module config, not global config!
     language: "en",  // en, de, en, es, fr, ga, gd, it, nl, pt, no, sv, fi, da, eu, ar, jp, uk
-    
-    backgroundImage: "background.jpg" , // place your own background image in the images/ folder
-    postDoor24Image: "background24.png",  // Optional: background for 23:59:59 on Dec 24
+     
+    // General configuration
+    backgroundImage: "background.jpg" , // place your own background image in the images/ folder  
     doorMargin: 30,
     moduleWidth: "100%",
     moduleHeight: "100%",
@@ -108,17 +108,20 @@ Full configuration
     autoopenat: "07:30",
     openAnimationTime: "5s",
     onboardingToolTips: false, // If set to true wil give you a brief overview of the module on the first start up
-
+    
+    // Audio configuration
     audioEnabled: true,
     audioVolume: 0.5,
     doorScaleOnAudio: false,
     doorScaleAudioSize: 1.5,
     doorScaleOverlayOpacity: 0.5,
     doorScaleBackgroundMinOpacity: 0.4,
-
+    
+    // Video configuration
     allowVideoPlay: true,
     videoSource: "folder",  // "hardcoded", // hardcoded links to al videos on youtube / tictoc are in ther modules .js
-
+    
+    // Footer banner configuration
     footerImageEnabled: true,
     footerImageDirection: "left-to-right",
     footerImageAnimationDuration: 120,
@@ -126,29 +129,35 @@ Full configuration
     footerImageSize: 40,
     footerImages: "socks.gif",
 
+    // Santa sleigh configuration
     sleighEnabled: true,
     sleighSpeed: 10,
     sleighDirection: "left-to-right",
     sleighImage: "sleigh.gif",
 
+    // Santa`s gifts configuration
     giftsFromSanta: true,
     giftType: "trophy", // "trophy" or "gift"
     maxGiftsToDrop: 3,
     giftDropDelay: 5,
-
-    closeAllDoors: false, // closes each dor on completion of media or pre test
-    testSequentially: false, // wIf set to "true" wil test is al media is available
-    randomizeDoorsOnStart: true,
-    testDoorDuration: 20, // media duration during test
-    dateOverride: null,  // Format: nul, or "YYYY-MM-DD hh:mm:ss", e.g. "2024-12-24 23:59:59" for Christmas Eve test
-
+    postDoor24Image: "background24.png",  // Optional: background for 23:59:59 on Dec 24
+    
+    // Snowflake configuration
     snowflakesEnabled: true,
     snowflakeColors: ["#FFFFFF", "#CCFFFF", "#99CCFF", "#6699FF", "#3366FF", "#0033FF", "#0000FF", "#0000AA", "#000055"],
     snowCondition: "Medium", // null, or "Light", "Medium", "Blizzard", "Extreme" to override snowflake counts/speed.
     snowflakeCount: 250,
     snowflakeTypes: 5,
-    snowflakeSpeed: 50
-  }
+    snowflakeSpeed: 50,
+
+    // Test configuration
+    closeAllDoors: false, // closes each dor on completion of media or pre test
+    testSequentially: false, // wIf set to "true" wil test is al media is available
+    randomizeDoorsOnStart: true,
+    testDoorDuration: 20, // media duration during test
+    dateOverride: null,  // Format: nul, or "YYYY-MM-DD hh:mm:ss", e.g. "2024-12-24 23:59:59" for Christmas Eve test
+    debug: false,
+    }
 }
 ```
 
