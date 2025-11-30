@@ -1,0 +1,9 @@
+{
+  "name": "MMM-MyTeams-Adventskalendar",
+  "version": "1.1.0",
+  "description": "MagicMirror module: Advent Calendar that wiil take you on a journey through Celtic`s history as you open each door ",
+  "main": "MMM-MyTeams-Adventskalendar.js",
+  "author": "gitgitaway",
+  "license": "MIT",
+  "dependencies": {}
+}
