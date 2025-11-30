@@ -82,7 +82,7 @@ Module.register("MMM-MyTeams-Adventskalender", {
         testSequentially: false,
         openAllDoorsTest: false,
         randomizeDoorsOnStart: true,
-        testDoorDuration: 3,
+        testDoorDuration: 20,
         dateOverride: null, // null or override date/time "YYYY-MM-DD hh:mm:ss" eg "2024-12-24 23:59:59" for testing Christmas Eve features
         debug: false,
     },
