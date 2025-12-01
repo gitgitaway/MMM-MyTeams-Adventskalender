@@ -104,7 +104,7 @@ Full configuration
     doorMargin: 30,
     moduleWidth: "100%",
     moduleHeight: "100%",
-    autopen: true,
+    autopen: false,
     autoopenat: "07:30",
     openAnimationTime: "5s",
     onboardingToolTips: false, // If set to true wil give you a brief overview of the module on the first start up
@@ -171,7 +171,7 @@ Configuration options
 | moduleWidth | number or string | 900 | Module width in px or percentage (e.g. "100%" for full screen). |
 | moduleHeight | number or string | 700 | Module height in px or percentage (e.g. "100%" for full screen). |
 | doorMargin | number | 30 | Spacing between doors. |
-| autopen | boolean | true | Auto-open today’s door. |
+| autopen | boolean | false | Auto-open today’s door. |
 | autoopenat | string | "00:00" | Time (HH:MM) when the daily door should auto-open. |
 | openAnimationTime | string | "5s" | Door open/close animation duration. |
 | onboardingToolTips | boolean | false | Show helpful onboarding tooltips on first load to guide new users. |
@@ -259,4 +259,5 @@ See LICENSE.
 
 ## Credits
 - Original advent calendar concept by @ChrisF1976 (MMM-Adventskalender)
+
 
