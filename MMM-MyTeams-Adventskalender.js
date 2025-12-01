@@ -25,7 +25,7 @@ Module.register("MMM-MyTeams-Adventskalender", {
         doorMargin: 30,
         moduleWidth: 900,
         moduleHeight: 700,
-        autopen: true,
+        autopen: false,
         autoopenat: "00:00",
         openAnimationTime: "5s",
         onboardingToolTips: false, // Show helpful tooltips on first load
