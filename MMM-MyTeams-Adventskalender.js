@@ -25,7 +25,7 @@ Module.register("MMM-MyTeams-Adventskalender", {
         doorMargin: 30,
         moduleWidth: 900,
         moduleHeight: 700,
-        autopen: false,
+        autopen: true,
         autoopenat: "00:00",
         openAnimationTime: "5s",
         onboardingToolTips: false, // Show helpful tooltips on first load
@@ -57,8 +57,8 @@ Module.register("MMM-MyTeams-Adventskalender", {
         // Sleigh animation configuration
         sleighEnabled: true,
         sleighSpeed: 10, // seconds to traverse screen
-        sleighDirection: "right-to-left", // "right-to-left" or "left-to-right", // "right-to-left" or "left-to-right"
-        sleighImage: "sleigh.gif", // GIF or image file in images folder (transparent background recommended)
+        sleighDirection: "left-to-right", // "right-to-left" or "left-to-right", // "right-to-left" or "left-to-right"
+        sleighImage: "2.gif", // GIF or image file in images folder (transparent background recommended)
         
         // Santa's gifts configuration
         giftsFromSanta: false, // Enable Santa dropping trophies/gifts from sleigh
@@ -82,7 +82,7 @@ Module.register("MMM-MyTeams-Adventskalender", {
         testSequentially: false,
         openAllDoorsTest: false,
         randomizeDoorsOnStart: true,
-        testDoorDuration: 20,
+        testDoorDuration: 3,
         dateOverride: null, // null or override date/time "YYYY-MM-DD hh:mm:ss" eg "2024-12-24 23:59:59" for testing Christmas Eve features
         debug: false,
     },
@@ -154,6 +154,7 @@ Module.register("MMM-MyTeams-Adventskalender", {
      */
     start() {
         Log.info("Starting module: " + this.name);
+        Log.info(`[Config] autopen=${this.config.autopen}, autoopenat=${this.config.autoopenat}`);
         
         // Validate CSP headers (warn if missing)
         if (!document.querySelector('meta[http-equiv="Content-Security-Policy"]')) {
@@ -205,9 +206,22 @@ Module.register("MMM-MyTeams-Adventskalender", {
         
         this.sendSocketNotification("SET_CONFIG", this.config);
         this.loadDoorState();
-        if (this.config.autopen) {
-            this.scheduleAutoOpen();
-        }
+
+                
+        // Fallback: if socket doesn't respond after 2 seconds, use default state
+        setTimeout(() => {
+            if (!this.doorState) {
+                Log.warn("[Bootstrap] Socket timeout - initializing with default door state");
+                this.doorState = {
+                    numbers: Array.from({ length: 24 }, (_, i) => i + 1),
+                    opened: Array(24).fill(false)
+                };
+                this.updateDom();
+                if (this.config.autopen) {
+                    this.scheduleAutoOpen();
+                }
+            }
+        }, 2000);
 
         // Show onboarding tooltips on first load if enabled
         if (this.config.onboardingToolTips) {
@@ -645,64 +659,207 @@ Module.register("MMM-MyTeams-Adventskalender", {
     /**
      * Schedule auto-opening of today's door using intervals instead of setTimeout
      * Checks every minute and handles sleep/wake transitions
+     * Tracks by calendar day to handle late starts correctly
+     * Delays first check to allow DOM to be created and rendered
      */
     scheduleAutoOpen() {
         this.autoOpenedToday = false;
+        this.lastAutoOpenDay = null;
         
-        this.checkAndAutoOpen();
+        Log.info("[Auto-Open] Scheduling auto-open - first check will run after 1000ms to allow DOM rendering");
+        
+        setTimeout(() => {
+            Log.info("[Auto-Open] Running initial auto-open check");
+            this.checkAndAutoOpen();
+        }, 1000);
         
         this.autoOpenCheckInterval = setInterval(() => {
+            Log.info("[Auto-Open] Running periodic auto-open check (every 60 seconds)");
             this.checkAndAutoOpen();
         }, 60000);
-        
+
         document.addEventListener("visibilitychange", () => {
             if (!document.hidden) {
+                Log.info("[Auto-Open] Window became visible, checking for auto-open");
                 this.checkAndAutoOpen();
             }
         });
         
-        Log.info("[Auto-Open] Scheduled auto-open checking every 60 seconds");
+        Log.info("[Auto-Open] Auto-open scheduler initialized");
     },
 
     /**
      * Check if current time matches auto-open time and open today's door
+     * Uses calendar day tracking to handle late starts (module starting after autoopen time)
      */
     checkAndAutoOpen() {
         try {
-            const now = new Date();
+            console.log("[AUTOOPEN-DEBUG] checkAndAutoOpen() called");
+            const now = this.getCurrentDate();
+            const currentDay = now.getDate();
             const configTime = this.config.autoopenat.split(":");
             const targetHour = parseInt(configTime[0], 10);
             const targetMinute = parseInt(configTime[1], 10);
             
-            if (now.getHours() === targetHour && now.getMinutes() === targetMinute) {
-                if (!this.autoOpenedToday) {
-                    this.openTodaysDoor();
-                    this.autoOpenedToday = true;
-                    Log.info(`[Auto-Open] Opened today's door at ${targetHour}:${String(targetMinute).padStart(2, "0")}`);
-                }
-            } else if (now.getHours() > targetHour || 
-                       (now.getHours() === targetHour && now.getMinutes() > targetMinute)) {
+            if (!this.doorState) {
+                Log.warn("[Auto-Open] Door state not available yet, cannot check auto-open");
+                return;
+            }
+            
+            // Check if it's time to open (current time >= target time AND haven't opened yet today)
+            const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+            const targetTimeInMinutes = targetHour * 60 + targetMinute;
+            const currentTimeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+            const targetTimeStr = `${String(targetHour).padStart(2, "0")}:${String(targetMinute).padStart(2, "0")}`;
+            
+            console.log(`[AUTOOPEN-DEBUG] currentTime=${currentTimeStr}, targetTime=${targetTimeStr}, currentMins=${currentTimeInMinutes}, targetMins=${targetTimeInMinutes}, opened=${this.autoOpenedToday}`);
+
+            // Track by calendar day - prevents duplicate opens if module restarts
+            if (this.lastAutoOpenDay === null) {
+                this.lastAutoOpenDay = currentDay;
+                Log.info(`[Auto-Open] Initialized with current day: ${currentDay}`);
+            }
+            
+            // Reset tracking when day changes
+            if (currentDay !== this.lastAutoOpenDay) {
                 this.autoOpenedToday = false;
+                this.lastAutoOpenDay = currentDay;
+                Log.info(`[Auto-Open] Day changed to ${currentDay}, reset auto-open flag`);
+            }
+            
+            Log.info(`[Auto-Open] Check: currentTime=${currentTimeStr}, targetTime=${targetTimeStr}, opened=${this.autoOpenedToday}`);
+            
+            if (currentTimeInMinutes >= targetTimeInMinutes && !this.autoOpenedToday) {
+                Log.info(`[Auto-Open] Time condition met! Opening today's door...`);
+                this.openTodaysDoor();
+                this.autoOpenedToday = true;
             }
         } catch (error) {
             this.handleError("Auto-open check failed", error);
         }
     },
+    
+
+    /**
+     * Load door state from node helper (socket notification sender)
+     * Requests door state initialization from backend
+     */
+    loadDoorState() {
+        this.sendSocketNotification("LOAD_DOOR_STATE", {
+            randomizeOnStart: this.config.randomizeDoorsOnStart
+        });
+    },
+
+    /**
+     * Handle door state loaded from node helper
+     * Called when node helper sends DOOR_STATE_LOADED notification
+     * Schedules auto-open after door state is available
+     * @param {object} payload - Door state object with numbers and opened arrays
+     */
+    socketNotificationReceived(notification, payload) {
+        console.log("[SOCKET-INIT] socketNotificationReceived called with:", notification);
+        Log.info(`[Socket] Notification received: ${notification}`);
+        if (notification === "DOOR_STATE_LOADED") {
+            Log.info(`[Socket] DOOR_STATE_LOADED received`);
+            this.doorState = payload;
+            Log.info(`[Door State] ✓ Loaded door state with ${this.doorState.numbers.length} doors (numbers: ${this.doorState.numbers.join(", ")})`);
+            
+            if (this.config.autopen) {
+                Log.info(`[Auto-Open] ✓ Auto-open enabled, calling scheduleAutoOpen()`);
+                this.scheduleAutoOpen();
+            } else {
+                Log.info(`[Auto-Open] Auto-open disabled in config`);
+            }
+            console.log("[SOCKET-DEBUG] Socket notification received:", notification);
+
+            Log.info(`[Socket] Calling updateDom() to render calendar`);
+            this.updateDom();
+        }
+
+    },
 
     /**
      * Open today's door (called by auto-open)
+     * Includes retry logic for DOM readiness using stored container reference
+     * Door state is guaranteed to be loaded at this point
      */
-    openTodaysDoor() {
+    openTodaysDoor(retryCount = 0) {
         try {
-            const today = new Date().getDate();
+            const now = this.getCurrentDate();
+            const today = now.getDate();
             const doorIndex = this.doorState.numbers.indexOf(today);
             
-            if (doorIndex !== -1) {
-                const door = document.querySelector(`[data-door-index="${doorIndex}"]`);
-                if (door && !door.classList.contains("opened")) {
-                    door.click();
-                }
+            if (doorIndex === -1) {
+                Log.warn(`[Auto-Open] Day ${today} not found in door state (numbers: ${this.doorState.numbers.join(", ")})`);
+                return;
             }
+            
+            Log.info(`[Auto-Open] Attempt ${retryCount + 1}: Looking for door index=${doorIndex} (day ${today})`);
+            
+            let door = null;
+            
+            // Try stored container reference first (faster)
+            if (this.doorsContainer && document.body.contains(this.doorsContainer)) {
+                Log.info(`[Auto-Open] Using stored doorsContainer reference`);
+                door = this.doorsContainer.querySelector(`[data-door-index="${doorIndex}"]`);
+            }
+            
+            // Fallback to searching entire document
+            if (!door) {
+                Log.info(`[Auto-Open] Searching entire document for doors`);
+                door = document.querySelector(`[data-door-index="${doorIndex}"]`);
+            }
+            
+            const allDoors = document.querySelectorAll("[data-door-index]");
+            Log.info(`[Auto-Open] Total doors in document: ${allDoors.length}`);
+            
+            if (!door) {
+                if (retryCount < 30) {
+                    const delay = Math.min(100 + (retryCount * 20), 500);
+                    Log.warn(`[Auto-Open] Door not found yet. Retry ${retryCount + 1}/30 in ${delay}ms (Total doors found: ${allDoors.length})`);
+                    setTimeout(() => {
+                        this.openTodaysDoor(retryCount + 1);
+                    }, delay);
+                } else {
+                    Log.error(`[Auto-Open] FAILED: Door not found after 30 retries. Total doors in DOM: ${allDoors.length}`);
+                    if (allDoors.length > 0) {
+                        const indices = Array.from(allDoors).map(d => d.getAttribute("data-door-index")).join(", ");
+                        Log.error(`[Auto-Open] Available door indices: ${indices}`);
+                    }
+                }
+                return;
+            }
+            
+            Log.info(`[Auto-Open] ✓ Found door element for day ${today}`);
+            
+            if (door.classList.contains("opened")) {
+                Log.info(`[Auto-Open] Door ${today} already open, skipping`);
+                return;
+            }
+            
+            if (door.classList.contains("locked")) {
+                Log.warn(`[Auto-Open] Door ${today} is locked, cannot open`);
+                return;
+            }
+            
+            Log.info(`[Auto-Open] ✓ Door ${today} is unlocked and closed. Opening directly...`);
+            const doorIdx = parseInt(door.dataset.doorIndex, 10);
+            const doorNum = door.querySelector("span.door-number");
+            const doorImg = door.querySelector("img.door-image");
+            
+            door.classList.add("opening");
+            if (doorNum) doorNum.style.visibility = "hidden";
+            
+            this.doorState.opened[doorIdx] = true;
+            this.sendSocketNotification("SAVE_DOOR_STATE", this.doorState);
+            
+            door.addEventListener("animationend", () => {
+                if (door.classList.contains("opening")) {
+                    door.classList.remove("opening");
+                    door.classList.add("opened");
+                    if (doorImg) doorImg.classList.add("door-image-visible");
+                }
+            }, { once: true });
         } catch (error) {
             this.handleError("Failed to open today's door", error);
         }
@@ -898,6 +1055,9 @@ Module.register("MMM-MyTeams-Adventskalender", {
     createDoors() {
         const doorsContainer = document.createElement("div");
         doorsContainer.className = "doors-container";
+        
+        // Store reference to doors container for auto-open access
+        this.doorsContainer = doorsContainer;
         doorsContainer.style.position = "relative";
         doorsContainer.style.zIndex = "1";
         doorsContainer.style.width = "100%";
@@ -1047,13 +1207,13 @@ Module.register("MMM-MyTeams-Adventskalender", {
                 door.appendChild(videoIndicator);
             }
 
-            // Auto-open doors that are before today or equal to today after autoopen time
-            // BUT ONLY if we are within the December 1-24 advent range
+            // Auto-open doors that are BEFORE today (not including today itself)
+            // TODAY's door will be opened by the auto-open scheduler instead
+            // Only mark doors as pre-opened if they're in the past
             if (
                 this.config.autopen &&
                 isWithinAdventRange &&
-                (doorNumber < today || 
-                (doorNumber === today && baseDate >= autoopenTime))
+                doorNumber < today
             ) {
                 this.doorState.opened[i] = true;
             }
@@ -2746,35 +2906,12 @@ Module.register("MMM-MyTeams-Adventskalender", {
         sleighGroup.style.alignItems = "center";
         sleighGroup.style.gap = "6px";
 
-        // Reindeer group (8 reindeer) - always at front/leading
-        const reindeersGroup = document.createElement("div");
-        reindeersGroup.style.display = "flex";
-        reindeersGroup.style.gap = "4px";
-
-        for (let i = 0; i < 8; i++) {
-            const reindeer = document.createElement("div");
-            reindeer.style.fontSize = "24px";
-            reindeer.textContent = "🦌";
-            reindeer.style.animation = `bounce-reindeer 0.6s ease-in-out ${i * 0.1}s infinite`;
-            reindeer.style.lineHeight = "1";
-            reindeersGroup.appendChild(reindeer);
-        }
-
-        // Golden reins connecting reindeer to sleigh
-        const reins = document.createElement("div");
-        reins.style.width = "12px";
-        reins.style.height = "2px";
-        reins.style.background = "linear-gradient(to right, #FFD700, #FFA500)";
-        reins.style.boxShadow = "0 1px 2px rgba(0, 0, 0, 0.4)";
-
-        // Sleigh image/GIF container
         const sleighImageContainer = document.createElement("div");
         sleighImageContainer.style.position = "relative";
         sleighImageContainer.style.display = "flex";
         sleighImageContainer.style.alignItems = "center";
         sleighImageContainer.style.justifyContent = "center";
 
-        // Create sleigh GIF/image
         const sleighImg = document.createElement("img");
         let imagePath = this.config.sleighImage;
         
@@ -2782,10 +2919,16 @@ Module.register("MMM-MyTeams-Adventskalender", {
             imagePath = `${this.file("images")}/${imagePath}`;
         }
         
+        imagePath = imagePath + `?t=${Date.now()}`;
         sleighImg.src = imagePath;
-        sleighImg.style.height = "60px";
+        sleighImg.style.height = "50px";
+        sleighImg.style.width = "auto";
         sleighImg.style.objectFit = "contain";
         sleighImg.style.filter = "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4))";
+        
+        if (this.config.sleighDirection === "left-to-right") {
+            sleighImg.style.transform = "scaleX(-1)";
+        }
         sleighImg.onerror = () => {
             Log.warn(`[Sleigh] Failed to load sleigh image: ${this.config.sleighImage}, using fallback emoji`);
             sleighImg.style.display = "none";
@@ -2793,17 +2936,7 @@ Module.register("MMM-MyTeams-Adventskalender", {
         };
         
         sleighImageContainer.appendChild(sleighImg);
-
-        // Build order based on direction - sleigh leads, reindeer pulls
-        if (this.config.sleighDirection === "right-to-left") {
-            sleighGroup.appendChild(reindeersGroup);
-            sleighGroup.appendChild(reins);
-            sleighGroup.appendChild(sleighImageContainer);
-        } else {
-            sleighGroup.appendChild(sleighImageContainer);
-            sleighGroup.appendChild(reins);
-            sleighGroup.appendChild(reindeersGroup);
-        }
+        sleighGroup.appendChild(sleighImageContainer);
 
         container.appendChild(sleighGroup);
 
