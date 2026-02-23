@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "gitgitaway"
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    pull-request-branch-name:
+      separator: "/"
+    rebase-strategy: "auto"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    versioning-strategy: "auto"

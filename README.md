@@ -14,6 +14,7 @@ A Glasgow Celtic FC themed advent calendar for the MagicMirror² which commemora
 - **17-Language Support**: Full multilingual interface including Christmas Eve Santa message translations
 - Snowfall animations (dynamically generated, optimized for all devices)
 - Sleigh and animated footer image procession
+- **Themed Asset Selection**: Support for multiple themes (CelticFC, Family, Traditional) with specific asset subfolders
 - Originl Adventskalender Auto-open today's door at a configured time
 - Persistent door state saved to disk
 - Locked door visual indicators with hover tooltips
@@ -22,6 +23,26 @@ A Glasgow Celtic FC themed advent calendar for the MagicMirror² which commemora
 - **Santa's Trophy Drop System**: Trophies drop sequentially when door 24 opens with smooth 8-second animations
 - **Date Override Testing**: Test any date/time without waiting, including Christmas Eve features
 - **Optimized for low-power devices** with ~92% reduction in DOM event listeners
+
+## Themes 🎨
+
+The module now supports specific themes. When a theme is selected, the module will look for images, audio, and video files in theme-specific subfolders.
+
+### Available Themes
+- **CelticFC**: (Default if specified) Uses assets from `Themes/CelticFC/History/`
+- **Family**: Uses assets from `Themes/Family/`
+- **Traditional**: Uses assets from `Themes/Traditional/`
+
+### How to Select a Theme
+Add the `theme` option to your configuration:
+
+```javascript
+config: {
+  theme: "Family", // Choose from: "CelticFC", "Family", "Traditional" or null
+}
+```
+
+If `theme` is set to `null` (default), the module uses the root `images/`, `audio/`, and `video/` folders.
 
 ## Accessibility Features ♿
 
@@ -77,6 +98,13 @@ Update
 Manual install
 - Copy the MMM-MyTeams-Adventskalender folder to MagicMirror/modules
 
+## Update
+
+```
+cd ~/MagicMirror/modules/MMM-Adventskalender
+git pull
+```
+
 ## Configuration
 Add to config/config.js:
 
@@ -94,13 +122,13 @@ Full configuration
 ```
 {
   module: "MMM-MyTeams-Adventskalender",
-  position: "fulscren_above",
+  position: "fulscreen_above",
   config: {
     // ⚠️ IMPORTANT: Language must be set in module config, not global config!
     language: "en",  // en, de, en, es, fr, ga, gd, it, nl, pt, no, sv, fi, da, eu, ar, jp, uk
-    
-    backgroundImage: "background.jpg" , // place your own background image in the images/ folder
-    postDoor24Image: "background24.png",  // Optional: background for 23:59:59 on Dec 24
+     
+    // General configuration
+    backgroundImage: "background.jpg" , // place your own background image in the images/ folder  
     doorMargin: 30,
     moduleWidth: "100%",
     moduleHeight: "100%",
@@ -108,17 +136,23 @@ Full configuration
     autoopenat: "07:30",
     openAnimationTime: "5s",
     onboardingToolTips: false, // If set to true wil give you a brief overview of the module on the first start up
-
+    
+    // Theme configuration
+    theme: null, // Select a theme: e.g., "CelticFC", "Family", "Traditional"
+    
+    // Audio configuration
     audioEnabled: true,
     audioVolume: 0.5,
     doorScaleOnAudio: false,
     doorScaleAudioSize: 1.5,
     doorScaleOverlayOpacity: 0.5,
     doorScaleBackgroundMinOpacity: 0.4,
-
+    
+    // Video configuration
     allowVideoPlay: true,
     videoSource: "folder",  // "hardcoded", // hardcoded links to al videos on youtube / tictoc are in ther modules .js
-
+    
+    // Footer banner configuration
     footerImageEnabled: true,
     footerImageDirection: "left-to-right",
     footerImageAnimationDuration: 120,
@@ -126,29 +160,35 @@ Full configuration
     footerImageSize: 40,
     footerImages: "socks.gif",
 
+    // Santa sleigh configuration
     sleighEnabled: true,
     sleighSpeed: 10,
     sleighDirection: "left-to-right",
     sleighImage: "sleigh.gif",
 
+    // Santa`s gifts configuration
     giftsFromSanta: true,
     giftType: "trophy", // "trophy" or "gift"
     maxGiftsToDrop: 3,
     giftDropDelay: 5,
+    postDoor24Image: "background24.png",  // Optional: background for 23:59:59 on Dec 24
+    
+    // Snowflake configuration
+    snowflakesEnabled: true,
+    snowflakeColors: ["#FFFFFF", "#FAFAFA", "#F5F5F5", "#F0F8FF", "#E6E6FA", "#F0F0F0", "#E0E0E0", "#E8E8E8", "#F8F8F8"],
+    snowCondition: "Medium", // null, or "Light", "Medium", "Blizzard", "Extreme" to override snowflake counts/speed.
+    snowflakeCount: 250,
+    snowflakeTypes: 5,
+    snowflakeSpeed: 50,
 
+    // Test configuration
     closeAllDoors: false, // closes each dor on completion of media or pre test
     testSequentially: false, // wIf set to "true" wil test is al media is available
     randomizeDoorsOnStart: true,
     testDoorDuration: 20, // media duration during test
     dateOverride: null,  // Format: nul, or "YYYY-MM-DD hh:mm:ss", e.g. "2024-12-24 23:59:59" for Christmas Eve test
-
-    snowflakesEnabled: true,
-    snowflakeColors: ["#FFFFFF", "#CCFFFF", "#99CCFF", "#6699FF", "#3366FF", "#0033FF", "#0000FF", "#0000AA", "#000055"],
-    snowCondition: "Medium", // null, or "Light", "Medium", "Blizzard", "Extreme" to override snowflake counts/speed.
-    snowflakeCount: 250,
-    snowflakeTypes: 5,
-    snowflakeSpeed: 50
-  }
+    debug: false,
+    }
 }
 ```
 
@@ -157,7 +197,8 @@ Configuration options
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | language | string | "en" | **⚠️ MUST be in module config, not global config.** Supported: de, en, es, fr, ga, gd, it, nl, pt, no, sv, fi, da, eu, ar, jp, uk. Controls all interface text including Christmas Eve messages. |
-| backgroundImage | string or null | null | Background image file name or absolute/HTTP path. If only a file name is provided it is resolved from images/. |
+| theme | string or null | null | Select a specific theme: "CelticFC", "Family", "Traditional". When set, assets are loaded from theme subfolders. |
+| backgroundImage | string or null | null | Background image file name or absolute/HTTP path. If only a file name is provided it is resolved from images/ (or the themed images folder). |
 | postDoor24Image | string or null | null | Special background image displayed at 23:59:59 on Christmas Eve (Dec 24). Pairs with Santa's multilingual message. |
 | moduleWidth | number or string | 900 | Module width in px or percentage (e.g. "100%" for full screen). |
 | moduleHeight | number or string | 700 | Module height in px or percentage (e.g. "100%" for full screen). |
@@ -203,6 +244,7 @@ Configuration options
 ## Assets
 Place media inside the module folder:
 - **images/**: 01.jpg … 24.jpg, plus any backgrounds and footer images (e.g. socks.gif, sleigh.gif)
+  - **Themed Assets**: If using themes, place files in `Themes/<themeName>/images/`, `audio/`, or `video/`.
   - **Gift/Trophy images** (optional): Configure with `giftType` and `maxGiftsToDrop`
     - When `giftType: "trophy"`: Looks for trophy1.png/jpg/gif/webp, trophy2.*, trophy3.*, up to trophy8.*
     - When `giftType: "gift"`: Looks for gift1.png/jpg/gif/webp, gift2.*, gift3.*, up to gift8.*
@@ -225,6 +267,7 @@ Place media inside the module folder:
 - Update:
   ```
   cd ~/MagicMirror/modules/MMM-MyTeams-Adventskalender && git pull
+  ```
 
 - Reset state: stop MagicMirror and delete state.json in the module folder; it will be recreated on next start.
 
@@ -250,4 +293,3 @@ See LICENSE.
 
 ## Credits
 - Original advent calendar concept by @ChrisF1976 (MMM-Adventskalender)
-

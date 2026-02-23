@@ -4,8 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
+## [1.1.1] - 2025-12-03
+
+### Fixed
+
+- **Raspberry Pi Reindeer Display Issue**: Fixed reindeer rendering as empty boxes on Linux/Raspberry Pi systems
+  - Root cause: Emoji rendering limitations on Linux systems (lack of proper emoji font support)
+  - Solution: Implemented GIF-based sleigh animation with combined sleigh+reindeer graphics
+  - Removed 450+ lines of complex SVG reindeer code and helper methods (`isLinuxPlatform()`, `createReindeerEmoji()`, `createReindeerSVG()`)
+  - Sleigh animation now universally supported across all platforms (Windows, macOS, Raspberry Pi)
+  - Added CSS horizontal flip (`transform: scaleX(-1)`) for bidirectional sleigh direction support
+  - Added cache-busting to force image reload and prevent browser caching issues
+
 ## [1.1.0] - 2025-11-29
+
 ### Added
+
 - **Christmas Eve Special Features**: Automatic activation at exactly 23:59:59 on December 24
   - Santa's multilingual greeting displays in configured language (17 languages supported)
   - Background image automatic switch with `postDoor24Image` configuration
@@ -17,12 +31,14 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
   - Example: `dateOverride: "2024-12-24 23:59:59"`
 
 ### Changed
+
 - **Language Configuration**: Clarified requirement to set language in module config, not global config
   - Global `language` setting in config.js does NOT apply to this module
   - Must add `language` to the module's config section
   - Documentation updated across all guides to emphasize this requirement
 
 ### Fixed
+
 - **Background Image Element**: Now always created in DOM even when no initial background image is set
   - Enables proper background switching for Christmas Eve feature
   - Uses `data-background="true"` attribute for reliable DOM selection
@@ -30,11 +46,14 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
   - Properly switches background at 23:59:59 on December 24
 
 ### Enhanced
+
 - **Testing Documentation**: Added comprehensive examples for testing Christmas Eve features
 - **Configuration Examples**: Updated all documentation with language and Christmas Eve settings
 
 ## [1.0.0] - 2025-11-25
+
 ### Added
+
 - **Unified Logging System**: Standardized logger with consistent format `[MMM-MyTeams-Adventskalender:CategoryName]`
   - Category-specific loggers: Audio, Video, Gift, Sleigh, Trophy, Performance, Accessibility, Security
   - Replaces inconsistent prefixes for easier log parsing and debugging
@@ -81,11 +100,13 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 
 
 ### Fixed
+
 - Fixed media loading performance issues through element pooling
 - Fixed snowflake generation bottleneck on memory-constrained devices
 - Fixed video auto-close UX by making timeout configurable with longer default
 
 ### Technical Improvements
+
 - Implemented element pooling pattern for overlay reuse
 - Added device capability detection (`navigator.deviceMemory`)
 - Enhanced accessibility detection for screen readers
@@ -94,7 +115,9 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 
 
 ## [0.3.0] - 2025-11-24
+
 ### Added
+
 - **Trophy Drop System**: Santa's gifts now drop when door 24 opens
   - Trophies drop sequentially (trophy1 → trophy2 → trophy3) with 5-second delays
   - Smooth 8-second fall animation for each trophy
@@ -102,18 +125,22 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
   - High z-index (9999) ensures visibility above scaled door images
 
 ### Improved
+
 - Trophy animation timing: increased from 2 seconds to 8 seconds for better visibility
 - Trophy container positioning: moved lower (`bottom: 120px`) to sit between door grid and countdown banner
 - Trophy animations now visible as they fall with proper opacity throughout animation
 - Simplified animation keyframes to single `trophy-fall` animation for all trophies
 
 ### Changed
+
 - Trophy system now triggers only when door 24 is opened (event-driven instead of continuous)
 - Trophy container z-index increased to 9999 for reliable visibility
 - Animation duration increased for visual clarity
 
 ## [0.2.1] - 2025-11-23
+
 ### Refactored
+
 - **CSS Class Migration**: Migrated 10+ inline styles from JavaScript to 12 new CSS utility classes for cleaner separation of concerns
   - `.door-number`, `.door-image`, `.door-image-visible`, `.video-indicator-positioned`
   - `.door-past-day`, `.door-today`, `.door-locked-no-interact`
@@ -123,6 +150,7 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 - **Consistent Error Handling**: Standardized all 11 error handling instances throughout the module to use centralized `handleError()` method instead of mixed `Log.error()` and `Log.warn()` calls
 
 ### Improved
+
 - Reduced DOM event listener count by ~92% (from 24 listeners per door to 1 delegated listener)
 - Improved code maintainability with better separation of presentation (CSS) and logic (JavaScript)
 - Consistent logging and error context across all error scenarios
@@ -130,7 +158,9 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 - Better debugging experience with standardized error messages
 
 ## [0.2.0] - 2025-11-21
+
 ### Added
+
 - **Snowfall Animation Optimization**: Implemented dynamic generation of 20 different snowfall keyframe animations, eliminating 458 lines of hardcoded CSS
 - **Time Format Validation**: Added `validateTimeFormat()` method to validate `autoopenat` configuration (HH:MM format validation with fallback)
 - **Audio Overlay Customization**: New configuration options for door scaling during audio playback:
@@ -147,26 +177,32 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
   - Backdrop-filter blur for modern browsers
 
 ### Changed
+
 - **Non-Intrusive Defaults**: Changed `doorScaleOnAudio` default from `true` to `false` (non-intrusive by default)
 - **Version Bump**: Updated to 1.2.0 to reflect UX and configuration improvements
 
 ### Fixed
+
 - Fixed missing `generateSnowfallStyles()` method that was causing module load failures
 - Improved code separation between styling and JavaScript logic
 - Removed unused test variables (`testAudioDuration`, `testVideoDuration`)
 
 ### Technical Improvements
+
 - CSS now uses pseudo-elements for visual enhancements instead of adding DOM nodes
 - Configuration options now have bounds checking for safety (Math.max/Math.min)
 - Better defaults prioritize non-intrusive user experience
 
 ## [0.1.1] - 2025-11-16
+
 ### Added
+
 - Enhanced testSequentially function with robust sequential door testing
 - Video closure detection (both popup and modal windows) to continue sequence on manual close
 - Improved state tracking for test mode operations
 
 ### Improved
+
 - testDoorsSequentially function now properly:
   - Closes all doors before starting sequence
   - Opens each door 1-24 in order
@@ -179,7 +215,9 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
   - Better logging for debugging test sequences
 
 ## [0.0.1] - 2025-11-13
+
 ### Added
+
 - Fork of MMM-Adventskalender as new MMM-MyTeams-Adventskalender, with Celtic FC theme for test and development.
 - 24 interactive doors with images and optional audio.
 - Optional video playback via YouTube or local files.

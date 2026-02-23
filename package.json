@@ -1,0 +1,33 @@
+{
+  "name": "MMM-MyTeams-Adventskalendar",
+  "version": "1.1.0",
+  "description": "MagicMirror module: Advent Calendar that will take you on a journey through Celtic's history as you open each door",
+  "keywords": [
+    "Advent",
+    "Advent Calendar",
+    "MyTeams",
+    "Sports",
+    "Football",
+    "Soccer",
+    "Celtic"
+  ],
+  "homepage": "https://github.com/gitgitaway/MMM-MyTeams-Adventskalender/#readme",
+  "bugs": {
+    "url": "https://github.com/gitgitaway/MMM-MyTeams-Adventskalender/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gitgitaway/MMM-MyTeams-Adventskalender.git"
+  },
+  "main": "MMM-MyTeams-Adventskalendar.js",
+  "author": "gitgitaway",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0"
+  },
+  "dependencies": {}
+}
